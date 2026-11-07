@@ -1,0 +1,584 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algebra Quiz</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1020;
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #29334c;
+}
+
+.logo {
+    font-size: 23px;
+    font-weight: bold;
+    color: #65d9ff;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.fullscreen {
+    background: #243452;
+    color: white;
+}
+
+.container {
+    max-width: 950px;
+    margin: 45px auto;
+    padding: 25px;
+}
+
+.quiz-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    color: #aab8d0;
+}
+
+.progress {
+    height: 8px;
+    background: #26334d;
+    border-radius: 10px;
+    margin-bottom: 35px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #39c9f5;
+    transition: .3s;
+}
+
+.quiz-card, .result {
+    background: #151f35;
+    border: 1px solid #293a59;
+    padding: 40px;
+    border-radius: 18px;
+}
+
+.question-number {
+    color: #52d3ff;
+    margin-bottom: 20px;
+}
+
+.question {
+    font-size: 26px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.options {
+    display: grid;
+    gap: 15px;
+}
+
+.option {
+    background: #202d47;
+    border: 2px solid transparent;
+    padding: 17px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.option:hover:not(.locked) {
+    border-color: #52d3ff;
+}
+
+.option.correct {
+    background: #124c36;
+    border-color: #22c982;
+    color: #76ffc0;
+}
+
+.option.wrong {
+    background: #57232d;
+    border-color: #ff536b;
+    color: #ff9ca9;
+}
+
+.option.locked {
+    cursor: not-allowed;
+    opacity: .9;
+}
+
+.feedback {
+    margin-top: 22px;
+    padding: 17px;
+    border-radius: 10px;
+    display: none;
+    line-height: 1.6;
+}
+
+.feedback.correct {
+    display: block;
+    background: #124c36;
+    color: #76ffc0;
+}
+
+.feedback.wrong {
+    display: block;
+    background: #57232d;
+    color: #ff9ca9;
+}
+
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 12px;
+}
+
+.previous {
+    background: #35435c;
+    color: white;
+}
+
+.next, .submit, .restart {
+    background: #18b9e8;
+    color: #06121e;
+}
+
+button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.result {
+    display: none;
+    text-align: center;
+    padding: 45px 20px;
+}
+
+.result h1 {
+    color: #52d3ff;
+    margin-bottom: 20px;
+}
+
+.score {
+    font-size: 45px;
+    margin: 20px;
+}
+
+.restart {
+    margin-top: 20px;
+}
+
+@media(max-width:600px) {
+    header {
+        padding: 15px;
+    }
+
+    .container {
+        margin: 20px auto;
+        padding: 12px;
+    }
+
+    .quiz-card {
+        padding: 22px;
+    }
+
+    .question {
+        font-size: 21px;
+    }
+
+    button {
+        padding: 11px 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">∑ Algebra Quiz</div>
+    <button class="fullscreen" onclick="toggleFullscreen()">
+        ⛶ Full Screen
+    </button>
+</header>
+
+<div class="container">
+
+    <div id="quiz">
+
+        <div class="quiz-info">
+            <span id="questionCount"></span>
+            <span id="timer">Time: 00:00</span>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="quiz-card">
+
+            <div class="question-number" id="number"></div>
+
+            <div class="question" id="question"></div>
+
+            <div class="options" id="options"></div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <div class="navigation">
+
+                <button class="previous" id="prevBtn"
+                    onclick="previousQuestion()">
+                    ← Previous
+                </button>
+
+                <button class="next" id="nextBtn"
+                    onclick="nextQuestion()">
+                    Next →
+                </button>
+
+                <button class="submit" id="submitBtn"
+                    onclick="submitQuiz()" style="display:none">
+                    Finish Quiz
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="result" id="result">
+
+        <h1>Quiz Completed!</h1>
+
+        <p>Your final score:</p>
+
+        <div class="score" id="score"></div>
+
+        <p id="message"></p>
+
+        <p id="timeTaken" style="margin-top:15px;color:#aab8d0"></p>
+
+        <button class="restart" onclick="restartQuiz()">
+            Try Again
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+const questions = [
+{
+q: "What is the value of x if x + 5 = 12?",
+o: ["5", "7", "8", "9"],
+a: 1
+},
+{
+q: "Solve: 2x = 18",
+o: ["6", "8", "9", "12"],
+a: 2
+},
+{
+q: "What is 3²?",
+o: ["6", "9", "12", "18"],
+a: 1
+},
+{
+q: "Simplify: 4x + 3x",
+o: ["7", "7x", "12x", "x"],
+a: 1
+},
+{
+q: "Solve: x - 8 = 10",
+o: ["2", "16", "18", "20"],
+a: 2
+},
+{
+q: "What is the coefficient of x in 9x + 4?",
+o: ["4", "9", "13", "1"],
+a: 1
+},
+{
+q: "Solve: 5x = 40",
+o: ["5", "6", "8", "10"],
+a: 2
+},
+{
+q: "Simplify: 6a + 2a - 3a",
+o: ["5a", "8a", "11a", "a"],
+a: 0
+},
+{
+q: "What is the value of x if 2x + 4 = 14?",
+o: ["3", "4", "5", "6"],
+a: 2
+},
+{
+q: "Expand: 2(x + 3)",
+o: ["2x + 3", "2x + 6", "x + 6", "5x"],
+a: 1
+},
+{
+q: "Solve: x / 4 = 5",
+o: ["10", "15", "20", "25"],
+a: 2
+},
+{
+q: "What is the value of 2² + 3²?",
+o: ["13", "15", "25", "10"],
+a: 0
+},
+{
+q: "Factorise: x² - 9",
+o: ["(x-3)(x+3)", "(x-9)(x+1)", "(x-3)²", "x(x-9)"],
+a: 0
+},
+{
+q: "Solve: 3x + 2 = 17",
+o: ["3", "4", "5", "6"],
+a: 2
+},
+{
+q: "What is the degree of polynomial 5x³ + 2x² + 7?",
+o: ["1", "2", "3", "5"],
+a: 2
+}
+];
+
+let current = 0;
+let answers = Array(questions.length).fill(null);
+let seconds = 0;
+
+function showQuestion() {
+
+    const q = questions[current];
+
+    document.getElementById("questionCount").textContent =
+        `Question ${current + 1} / ${questions.length}`;
+
+    document.getElementById("number").textContent =
+        `QUESTION ${String(current + 1).padStart(2, "0")}`;
+
+    document.getElementById("question").textContent = q.q;
+
+    const optionsEl = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+
+    optionsEl.innerHTML = "";
+
+    const selected = answers[current];
+
+    q.o.forEach((option, index) => {
+
+        const div = document.createElement("div");
+
+        div.className = "option";
+
+        div.textContent =
+            String.fromCharCode(65 + index) + ". " + option;
+
+        if (selected !== null) {
+
+            div.classList.add("locked");
+
+            if (index === q.a) {
+                div.classList.add("correct");
+            }
+
+            if (index === selected && selected !== q.a) {
+                div.classList.add("wrong");
+            }
+
+        } else {
+
+            div.onclick = () => selectAnswer(index);
+
+        }
+
+        optionsEl.appendChild(div);
+
+    });
+
+    feedback.className = "feedback";
+
+    if (selected !== null) {
+
+        if (selected === q.a) {
+
+            feedback.classList.add("correct");
+
+            feedback.innerHTML =
+                "✓ Correct Answer! Excellent work.";
+
+        } else {
+
+            feedback.classList.add("wrong");
+
+            feedback.innerHTML =
+                "✗ Incorrect Answer!<br>" +
+                "Correct Answer: <b>" +
+                String.fromCharCode(65 + q.a) + ". " +
+                q.o[q.a] + "</b>";
+
+        }
+
+    }
+
+    document.getElementById("prevBtn").disabled =
+        current === 0;
+
+    document.getElementById("nextBtn").style.display =
+        current === questions.length - 1 ? "none" : "block";
+
+    document.getElementById("submitBtn").style.display =
+        current === questions.length - 1 ? "block" : "none";
+
+    document.getElementById("progressBar").style.width =
+        ((current + 1) / questions.length * 100) + "%";
+
+}
+
+function selectAnswer(index) {
+
+    if (answers[current] !== null) return;
+
+    answers[current] = index;
+
+    showQuestion();
+
+}
+
+function nextQuestion() {
+
+    if (current < questions.length - 1) {
+        current++;
+        showQuestion();
+    }
+
+}
+
+function previousQuestion() {
+
+    if (current > 0) {
+        current--;
+        showQuestion();
+    }
+
+}
+
+function submitQuiz() {
+
+    const unanswered = answers.filter(a => a === null).length;
+
+    if (unanswered > 0) {
+
+        alert(`You have ${unanswered} unanswered question(s). Please answer all questions before finishing.`);
+
+        return;
+
+    }
+
+    let correct = 0;
+
+    questions.forEach((q, i) => {
+        if (answers[i] === q.a) correct++;
+    });
+
+    const percentage =
+        (correct / questions.length) * 100;
+
+    document.getElementById("quiz").style.display = "none";
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("score").textContent =
+        `${correct} / ${questions.length}`;
+
+    document.getElementById("message").textContent =
+        percentage >= 80 ? "Excellent work!" :
+        percentage >= 50 ? "Good effort! Keep practising." :
+        "Keep learning and try again!";
+
+    document.getElementById("timeTaken").textContent =
+        `Time Taken: ${formatTime(seconds)}`;
+
+}
+
+function formatTime(total) {
+
+    const min = String(Math.floor(total / 60)).padStart(2, "0");
+    const sec = String(total % 60).padStart(2, "0");
+
+    return `${min}:${sec}`;
+
+}
+
+function restartQuiz() {
+
+    current = 0;
+    answers = Array(questions.length).fill(null);
+    seconds = 0;
+
+    document.getElementById("quiz").style.display = "block";
+    document.getElementById("result").style.display = "none";
+
+    document.getElementById("timer").textContent = "Time: 00:00";
+
+    showQuestion();
+
+}
+
+function toggleFullscreen() {
+
+    if (!document.fullscreenElement) {
+
+        document.documentElement.requestFullscreen?.();
+
+    } else {
+
+        document.exitFullscreen?.();
+
+    }
+
+}
+
+setInterval(() => {
+
+    seconds++;
+
+    document.getElementById("timer").textContent =
+        "Time: " + formatTime(seconds);
+
+}, 1000);
+
+showQuestion();
+
+</script>
+
+</body>
+</html>
+```
